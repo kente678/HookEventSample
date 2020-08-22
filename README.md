@@ -30,7 +30,8 @@ pyRevitでイベントをHookして、
 
 
 ## 2.　pyrevitHookExtensionを用いた簡易フック
-* pyrevitに組み込まれていて、とても簡単にHookができます。  
+* pyrevitに組み込まれていて、とても簡単にHookができます。
+* Revitの、「Basic Sample Project」を開きましょう。
 * 参考 
     * https://www.notion.so/Anatomy-of-Hook-Scripts-47c2d5b796774afca51ff53a4c1e9f1c  
     * https://github.com/eirannejad/pyRevit/tree/master/extensions/pyRevitDevHooks.extension/hooks
@@ -162,6 +163,7 @@ class sampleUpdater(DB.IUpdater):
 
 ### 3.2 追加、変更コメント記入処理を追加
 * IUpdaterクラスに、変数と関数を追加します。
+* 今回の作業用に、3Dビューを複製しましょう。
 * コンストラクタに変数を追加
 ```
 #アップデータークラス
@@ -271,7 +273,8 @@ HOST_APP.app.DocumentChanged += \
 3.3 追加、変更エレメントの色変更
 * カラーのオーバーライドセッティングをセットする関数を追加します。  
   （sampleUpdater内ではなく、とりあえずstartup.py上に追加しちゃいます。）
-   * kara
+   * [OverrideGraphicSettings参考ページ](https://forums.autodesk.com/t5/revit-api-forum/using-api-to-change-color-and-or-material-of-directshape/td-p/7064149?profile.language=ja)
+   * [Revit API Docs](https://www.revitapidocs.com/2020/bd467fbb-a9da-7cf1-1ef5-f0f3568db0ac.htm)
 ```
 #カラーのオーバーライドセッティング
 def SetElementColor(R, G, B, A):
@@ -304,7 +307,7 @@ def SetElementColor(R, G, B, A):
         self.changedColor = SetElementColor(0, 0, 255, 20)
 ```
 
-* Execute関数に、追加、変更それぞれのエレメントのカラー変更する処理を追加します。
+* Execute関数に、追加、変更があったエレメントのカラー変更をする処理を追加します。
 ```
     #フック処理
     def Execute(self, data):
@@ -325,10 +328,10 @@ def SetElementColor(R, G, B, A):
                 if commentParamAdded:
                     #コメント記入
                     commentParamAdded.Set('追加')
-                    #対象エレメントの色変更
-                    doc.ActiveView.SetElementOverrides(id, self.addedColor)
                     #addedIdにId追加
                     self.addedId.append(id)
+                    #対象エレメントの色変更
+                    doc.ActiveView.SetElementOverrides(id, self.addedColor)
             except Exception as err:
                 if commentParamAdded:
                     commentParamAdded.Set("{}: {}".format(err.__class__.__name__, err))
@@ -350,3 +353,5 @@ def SetElementColor(R, G, B, A):
                 if commentParamChanged:
                     commentParamChanged.Set("{}: {}".format(err.__class__.__name__, err))
 ```
+
+
