@@ -41,10 +41,10 @@ pyRevitでイベントをHookして、
    Ex. `C:\Users\[UserName]\HookEventSample\HookEventSample.extension`  
 
 ### 2.2 hooksフォルダを追加
-* HookEventSampleに、hooksフォルダを追加  
+* HookEventSampleに、hooksフォルダを追加します。
    Ex. `C:\Users\[UserName]\HookEventSample\HookEventSample.extension\hooks`  
 ### 2.3 command.pyスクリプトを追加  
-* hooksフォルダに、[command].pyを追加  
+* hooksフォルダに、[command].pyを追加します。
    Ex. `C:\Users\[UserName]\HookEventSample\HookEventSample.extension\hooks\[command].py`  
 
 * commandには、準備されているコマンドの名称を記述することで、対象のコマンドをHookできます。
@@ -270,7 +270,7 @@ HOST_APP.app.DocumentChanged += \
                     commentParamChanged.Set("{}: {}".format(err.__class__.__name__, err))
 ```
 
-3.3 追加、変更エレメントの色変更
+### 3.3 追加、変更エレメントの色変更
 * カラーのオーバーライドセッティングをセットする関数を追加します。  
   （sampleUpdater内ではなく、とりあえずstartup.py上に追加しちゃいます。）
    * [OverrideGraphicSettings参考ページ](https://forums.autodesk.com/t5/revit-api-forum/using-api-to-change-color-and-or-material-of-directshape/td-p/7064149?profile.language=ja)
@@ -354,4 +354,17 @@ def SetElementColor(R, G, B, A):
                     commentParamChanged.Set("{}: {}".format(err.__class__.__name__, err))
 ```
 
+## 4. 非変更エレメントの表示非表示コマンド
+* 追加、変更に関与しなかったエレメントを表示非表示する機能を追加します。  
+  (差分確認用）
+### 4.1 HookSample.tabフォルダ作成
+*
 
+### 4.2 非変更エレメントをFiltering
+* 追加、変更コメントのついていない全てのエレメントをフィルタリングします。  
+   * 下記サイトに「フィルタの反転を指定するブール値引数を持ったオーバーロード コンストラクタを使用して反転させることができます」 
+     とあったので、それを利用します。  
+  [フィルタリングの日本語解説](https://knowledge.autodesk.com/ja/support/revit-products/learn-explore/caas/CloudHelp/cloudhelp/2014/JPN/Revit/files/GUID-A2686090-69D5-48D3-8DF9-0AC4CC4067A5-htm.html)  
+  [Revit API Docs](https://www.revitapidocs.com/2015/909615cd-8abd-044a-cff2-f21fd95b8ee7.htm)  
+
+  
