@@ -172,6 +172,8 @@ class sampleUpdater(DB.IUpdater):
         self.id = DB.UpdaterId(addin_id, Guid("A7931BDA-F0DC-41B5-83C9-C6FE03CC5025"))
         #追加エレメント
         self.addedId = []
+        #トランザクション名称取得
+        self.transactionName = None
 
 ```
 
@@ -183,4 +185,167 @@ class sampleUpdater(DB.IUpdater):
         self.transactionName = args.GetTransactionNames()[0]  
 ```
 
+* startup.py内で、IUpdaterクラスを生成します。
+```
+#新規にレビット立ち上げ時に、updater生成
+updater = sampleUpdater(HOST_APP.addin_id)
 
+#既に登録されているUpdaterがあったら、UpdaterRegistryをアンレジスター
+if DB.UpdaterRegistry.IsUpdaterRegistered(updater.GetUpdaterId()):
+    DB.UpdaterRegistry.UnregisterUpdater(updater.GetUpdaterId())
+    
+#UpdaterRegistryを登録
+DB.UpdaterRegistry.RegisterUpdater(updater)
+
+#フック対象エレメントにパーツを指定
+elements_filter = DB.ElementCategoryFilter(DB.BuiltInCategory.OST_PointClouds, True)
+#全ての変更タイプを取得
+change_type = DB.Element.GetChangeTypeAny()
+#追加変更タイプを取得
+additional_type = DB.Element.GetChangeTypeElementAddition()
+#変更トリガー登録
+DB.UpdaterRegistry.AddTrigger(updater.GetUpdaterId(), elements_filter, change_type)
+#追加トリガー登録
+DB.UpdaterRegistry.AddTrigger(updater.GetUpdaterId(), elements_filter, additional_type)
+```
+
+* DocumentChangedハンドラーをセットします。（確認用）
+```
+#DocumentChangedハンドラー取得
+HOST_APP.app.DocumentChanged += \
+        framework.EventHandler[DB.Events.DocumentChangedEventArgs](
+        updater.docchanged_eventhandler
+        )
+```
+
+* お試しで、トランザクション名称を、printで確認してみましょう。  
+  Execute関数に、フック処理の内容を記述します。
+```
+    #フック処理
+    def Execute(self, data):
+        print(self.transactionName)
+```
+
+* 追加、変更されたエレメントに、コメントを記入する処理を追加します。
+  引き続き、Execute関数内に記述します。（先ほどのprintは削除しましょう）
+```
+    def Execute(self, data):
+        doc = data.GetDocument()
+        #追加されたエレメントのId
+        addedIds = data.GetAddedElementIds()
+        #変更されたエレメントのId
+        changedIds = data.GetModifiedElementIds()
+
+        #追加エレメント用処理
+        for id in addedIds:
+            #エレメント取得
+            elemAdded = doc.GetElement(id)
+            #コメントパラメータ
+            commentParamAdded = elemAdded.Parameter[DB.BuiltInParameter.ALL_MODEL_INSTANCE_COMMENTS]
+            try:
+                if commentParamAdded:
+                    #コメント記入
+                    commentParamAdded.Set('追加')
+                    #addedIdにId追加
+                    self.addedId.append(id)
+            except Exception as err:
+                if commentParamAdded:
+                    commentParamAdded.Set("{}: {}".format(err.__class__.__name__, err))
+
+        #変更エレメント用処理
+        for id in changedIds:
+            #追加エレメントの時は、break
+            if id in self.addedId:
+                break
+            elemChanged = doc.GetElement(id)
+            commentParamChanged = elemChanged.Parameter[DB.BuiltInParameter.ALL_MODEL_INSTANCE_COMMENTS]
+            try:
+                if commentParamChanged:
+                    #コメント記入
+                    commentParamChanged.Set('変更')
+            except Exception as err:
+                if commentParamChanged:
+                    commentParamChanged.Set("{}: {}".format(err.__class__.__name__, err))
+```
+
+3.3 追加、変更エレメントの色変更
+* カラーのオーバーライドセッティングをセットする関数を追加します。  
+  （sampleUpdater内ではなく、とりあえずstartup.py上に追加しちゃいます。）
+```
+#カラーのオーバーライドセッティング
+def SetElementColor(R, G, B, A):
+
+    color = DB.Color(R,G,B)
+    ogs = DB.OverrideGraphicSettings()
+    ogs.SetProjectionLineColor(color)
+    ogs.SetSurfaceBackgroundPatternColor(color)
+    ogs.SetCutForegroundPatternColor(color)
+    ogs.SetCutBackgroundPatternColor(color)
+    ogs.SetCutLineColor(color)
+    ogs.SetSurfaceForegroundPatternColor(color)
+    ogs.SetSurfaceTransparency(A)
+    return ogs
+```
+
+* SampleUpdaterのコンストラクタに、カラー設定用変数を追加します。
+```
+    #コンストラクタ
+    def __init__(self, addin_id): 
+        #updaterのID
+        self.id = DB.UpdaterId(addin_id, Guid("A7931BDA-F0DC-41B5-83C9-C6FE03CC5025"))
+        #追加エレメント
+        self.addedId = []
+        #トランザクション名称取得
+        self.transactionName = None
+        #追加対象用カラーセット
+        self.addedColor = SetElementColor(255, 0, 0, 20)
+        #変更対象用カラーセット
+        self.changedColor = SetElementColor(0, 0, 255, 20)
+```
+
+* Execute関数に、追加、変更それぞれのエレメントのカラー変更する処理を追加します。
+```
+    #フック処理
+    def Execute(self, data):
+        
+        doc = data.GetDocument()
+        #追加されたエレメントのId
+        addedIds = data.GetAddedElementIds()
+        #変更されたエレメントのId
+        changedIds = data.GetModifiedElementIds()
+
+        #追加エレメント用処理
+        for id in addedIds:
+            #エレメント取得
+            elemAdded = doc.GetElement(id)
+            #コメントパラメータ
+            commentParamAdded = elemAdded.Parameter[DB.BuiltInParameter.ALL_MODEL_INSTANCE_COMMENTS]
+            try:
+                if commentParamAdded:
+                    #コメント記入
+                    commentParamAdded.Set('追加')
+                    #対象エレメントの色変更
+                    doc.ActiveView.SetElementOverrides(id, self.addedColor)
+                    #addedIdにId追加
+                    self.addedId.append(id)
+            except Exception as err:
+                if commentParamAdded:
+                    commentParamAdded.Set("{}: {}".format(err.__class__.__name__, err))
+
+        #変更エレメント用処理
+        for id in changedIds:
+            #追加エレメントの時は、break
+            if id in self.addedId:
+                break
+            elemChanged = doc.GetElement(id)
+            commentParamChanged = elemChanged.Parameter[DB.BuiltInParameter.ALL_MODEL_INSTANCE_COMMENTS]
+            try:
+                if commentParamChanged:
+                    #コメント記入
+                    commentParamChanged.Set('変更')
+                    #対象エレメントの色変更
+                    doc.ActiveView.SetElementOverrides(id, self.changedColor)
+            except Exception as err:
+                if commentParamChanged:
+                    commentParamChanged.Set("{}: {}".format(err.__class__.__name__, err))
+```
