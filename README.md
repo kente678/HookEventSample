@@ -160,4 +160,27 @@ class sampleUpdater(DB.IUpdater):
         
 ```          
 
-### 3.2 任意のViewを複製
+### 3.2 追加、変更コメント記入処理を追加
+* IUpdaterクラスに、変数と関数を追加します。
+* コンストラクタに変数を追加
+```
+#アップデータークラス
+class sampleUpdater(DB.IUpdater):
+    #コンストラクタ
+    def __init__(self, addin_id): 
+        #updaterのID
+        self.id = DB.UpdaterId(addin_id, Guid("A7931BDA-F0DC-41B5-83C9-C6FE03CC5025"))
+        #追加エレメント
+        self.addedId = []
+
+```
+
+* トランザクション名称を取得する関数を追加します。
+```
+    #変更時トランザクション通知
+    def docchanged_eventhandler(self, sender, args):
+        #トランザクション名称取得
+        self.transactionName = args.GetTransactionNames()[0]  
+```
+
+
