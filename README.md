@@ -117,7 +117,7 @@ t.Commit()
    
 
 ### 3.1 startup.py作成
-* 2.1で作成したフォルダに、startup.pyファイルを作成しましょう。 
+* 2.1で作成したフォルダに、startup.pyファイルを作成しましょう。  
    Ex. `C:\Users\[UserName]\HookEventSample\HookEventSample.extension`  
 
 ### 3.2 任意のViewを複製
