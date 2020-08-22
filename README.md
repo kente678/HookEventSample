@@ -110,14 +110,108 @@ t.Commit()
 
 ## 3. IUpdaterクラスを用いたフック
 * C#と同様に、IUpdaterクラスを用いれば、Pyrevitでもイベントをフックしつつ、トランザクション処理へ繋げることができます。
+
+* 今回は、IUpdaterを用いて、追加、変更されたエレメントをハイライトするツールを作成します。
+   * 追加、変更されたエレメントへ、コメントを追加。
+   * 追加、変更されたエレメントの色を変更。
 * 参考 
     * [Building Coderの記事](https://thebuildingcoder.typepad.com/blog/2012/06/documentchanged-versus-dynamic-model-updater.html)
     * [Pyrevitでの実装記事](https://stackoverflow.com/questions/62665168/nameerror-raised-by-iupdater-registered-through-pyrevit)
     * [Revit API Docs](https://www.revitapidocs.com/2020/ab8bc959-11c3-14c4-75ff-e1468973200e.htm)
+    * [pyRevitのNotion](https://www.notion.so/Extension-Startup-Script-605ce7b1831d41d88741bc9a9eee42a7)
    
 
-### 3.1 startup.py作成
-* 2.1で作成したフォルダに、startup.pyファイルを作成しましょう。  
-   Ex. `C:\Users\[UserName]\HookEventSample\HookEventSample.extension`  
+### 3.1 startup.pyスクリプトを追加
+* IUpdaterクラスを作成する準備をしましょう。
+   * 2.1で作成したフォルダに、startup.pyファイルを作成しましょう。  
+      Ex. `C:\Users\[UserName]\HookEventSample\HookEventSample.extension\startup.py`  
+   
+   
+```
+#-*- coding: utf-8 -*-
+#pylint: disable=C0103,E0401,W0703
+from pyrevit import HOST_APP, DB, framework
+from System import Guid
+from Autodesk.Revit.UI import TaskDialog
+import sys
+import os
+
+#アップデータークラス
+class sampleUpdater(DB.IUpdater):
+    #コンストラクタ
+    def __init__(self, addin_id): 
+        #updaterのID
+        self.id = DB.UpdaterId(addin_id, Guid("A7931BDA-F0DC-41B5-83C9-C6FE03CC5025"))
+        #追加エレメント
+        self.addedId = []
+        #追加対象用カラーセット
+        self.addedColor = SetElementColor(255, 0, 0, 20)
+        #変更対象用カラーセット
+        self.changedColor = SetElementColor(0, 0, 255, 20)
+
+
+    def GetUpdaterId(self):
+        return self.id
+
+    def GetUpdaterName(self):
+        return "Sample Updater"
+
+    def GetAdditionalInformation(self):
+        return "Just an sample"
+ 
+    def GetChangePriority(self):
+        return DB.ChangePriority.Views
+
+    #変更時トランザクション通知
+    def docchanged_eventhandler(self, sender, args):
+        #トランザクション名称取得
+        self.transactionName = args.GetTransactionNames()[0]  
+
+
+    #フック処理
+    def Execute(self, data):
+        
+        doc = data.GetDocument()
+        #追加されたエレメントのId
+        addedIds = data.GetAddedElementIds()
+        #変更されたエレメントのId
+        changedIds = data.GetModifiedElementIds()
+
+        #追加エレメント用処理
+        for id in addedIds:
+            #エレメント取得
+            elem = doc.GetElement(id)
+            commentParam = elem.Parameter[DB.BuiltInParameter.ALL_MODEL_INSTANCE_COMMENTS]
+            try:
+                if commentParam:
+                    #コメント記入
+                    commentParam.Set('追加')
+                    #対象エレメントの色変更
+                    doc.ActiveView.SetElementOverrides(id, self.addedColor)
+                    #addedIdにId追加
+                    self.addedId.append(id)
+            except Exception as err:
+                if commentParam:
+                    commentParam.Set("{}: {}".format(err.__class__.__name__, err))
+
+        #変更エレメント用処理
+        for id in changedIds:
+            #追加エレメントの時は、break
+            if id in self.addedId:
+                break
+            elem = doc.GetElement(id)
+            commentParam = elem.Parameter[DB.BuiltInParameter.ALL_MODEL_INSTANCE_COMMENTS]
+            try:
+                if commentParam:
+                    #コメント記入
+                    commentParam.Set('変更')
+                    #対象エレメントの色変更
+                    doc.ActiveView.SetElementOverrides(id, self.changedColor)
+            except Exception as err:
+                if commentParam:
+                    commentParam.Set("{}: {}".format(err.__class__.__name__, err))
+  
+```
+                   
 
 ### 3.2 任意のViewを複製
