@@ -36,15 +36,15 @@ pyRevitでイベントをHookして、
     * https://github.com/eirannejad/pyRevit/tree/master/extensions/pyRevitDevHooks.extension/hooks
     
 ### 2.1 Extensionフォルダ作成
-* 今回は"HookEventExtentionSample"という名称で作成してみましょう。    
-   Ex. `C:\Users\[UserName]\HookEventExtentionSample\HookEventExtentionSample.extension`  
+* 今回は"HookEventSample"という名称で作成してみましょう。    
+   Ex. `C:\Users\[UserName]\HookEventSample\HookEventSample.extension`  
 
 ### 2.2 hooksフォルダを追加
-* HookEventExtentionSampleに、hooksフォルダを追加  
-   Ex. `C:\Users\[UserName]\HookEventExtentionSample\HookEventExtentionSample.extension\hooks`  
+* HookEventSampleに、hooksフォルダを追加  
+   Ex. `C:\Users\[UserName]\HookEventSample\HookEventSample.extension\hooks`  
 ### 2.3 command.pyスクリプトを追加  
 * hooksフォルダに、[command].pyを追加  
-   Ex. `C:\Users\[UserName]\HookEventExtentionSample\HookEventExtentionSample.extension\hooks\[command].py`  
+   Ex. `C:\Users\[UserName]\HookEventSample\HookEventSample.extension\hooks\[command].py`  
 
 * commandには、準備されているコマンドの名称を記述することで、対象のコマンドをHookできます。
    * [Hook Script Types](https://www.notion.so/Extension-Hooks-b771ecf65f6a45fe87ae12beab2a73a6)
@@ -109,10 +109,15 @@ t.Commit()
 * pyrevitHookExtensionはとても作り方が簡単なのですが、使い道がとても限られるようです。（良い使い道があったら、教えてください！）
 
 ## 3. IUpdaterクラスを用いたフック
-* C#と同様に、IUpdaterクラスを用いれば、イベントをフックしつつ、トランザクション処理へ繋げることができます。
+* C#と同様に、IUpdaterクラスを用いれば、Pyrevitでもイベントをフックしつつ、トランザクション処理へ繋げることができます。
 * 参考 
-    * https://stackoverflow.com/questions/62665168/nameerror-raised-by-iupdater-registered-through-pyrevit
+    * [Building Coderの記事](https://thebuildingcoder.typepad.com/blog/2012/06/documentchanged-versus-dynamic-model-updater.html)
+    * [Pyrevitでの実装記事](https://stackoverflow.com/questions/62665168/nameerror-raised-by-iupdater-registered-through-pyrevit)
+    * [Revit API Docs](https://www.revitapidocs.com/2020/ab8bc959-11c3-14c4-75ff-e1468973200e.htm)
+   
 
 ### 3.1 startup.py作成
+* 2.1で作成したフォルダに、startup.pyファイルを作成しましょう。
+   Ex. `C:\Users\[UserName]\HookEventSample\HookEventSample.extension`  
 
 ### 3.2 任意のViewを複製
