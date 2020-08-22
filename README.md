@@ -226,7 +226,7 @@ HOST_APP.app.DocumentChanged += \
         print(self.transactionName)
 ```
 
-* 追加、変更されたエレメントに、コメントを記入する処理を追加します。
+* 追加、変更されたエレメントに、コメントを記入する処理を追加します。  
   引き続き、Execute関数内に記述します。（先ほどのprintは削除しましょう）
 ```
     def Execute(self, data):
@@ -271,6 +271,7 @@ HOST_APP.app.DocumentChanged += \
 3.3 追加、変更エレメントの色変更
 * カラーのオーバーライドセッティングをセットする関数を追加します。  
   （sampleUpdater内ではなく、とりあえずstartup.py上に追加しちゃいます。）
+   * kara
 ```
 #カラーのオーバーライドセッティング
 def SetElementColor(R, G, B, A):
