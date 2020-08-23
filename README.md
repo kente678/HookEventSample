@@ -9,7 +9,7 @@ pyRevitでイベントをHookして、
 * IUpdater：IUpdaterクラスを用いて、イベントのHookからトランザクション処理へ繋ぐことができます。
     * https://stackoverflow.com/questions/62665168/nameerror-raised-by-iupdater-registered-through-pyrevit
    
-https://gifs.com/gif/hookevent-YWLrvA
+
 
 
 ## 1.環境構築
