@@ -1,4 +1,4 @@
-# HookEventExtensionSample
+# HookEventSample
 pyRevitでイベントをHookして、
 任意の処理に繋げて楽しむExtensionを作りましょう。
 ## 0.参考
@@ -43,7 +43,7 @@ pyRevitでイベントをHookして、
    Ex. `C:\Users\[UserName]\HookEventSample\HookEventSample.extension`  
 
 ### 2.2 hooksフォルダを追加
-* HookEventSample.extensionに、hooksフォルダを追加します。
+* HookEventSample.extensionに、hooksフォルダを追加します。  
    Ex. `C:\Users\[UserName]\HookEventSample\HookEventSample.extension\hooks`  
 ### 2.3 command.pyスクリプトを追加  
 * hooksフォルダに、[command].pyを追加します。
