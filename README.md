@@ -81,7 +81,7 @@ for n in transactions:
    print(n)
 ```
 
-* 追加されたエレメントの名称をダイアログで表示する処理を記述します。
+* 追加されたエレメントの名称を表示してみましょう。
 ```
 #-*- coding: utf-8 -*-
 from pyrevit import forms
