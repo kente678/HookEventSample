@@ -78,7 +78,7 @@ doc = command.GetDocument()
 transactions = EXEC_PARAMS.event_args.GetTransactionNames()
 
 for n in transactions:
-   print(n)
+   forms.alert(n)
 ```
 
 * 追加されたエレメントの名称を表示してみましょう。
