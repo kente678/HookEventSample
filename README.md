@@ -56,7 +56,7 @@ pyRevitでイベントをHookして、
    * [DocumentChangedEventArgs](https://www.revitapidocs.com/2015/470504f7-c7cb-b259-6fd4-feb376e58d17.htm)
    * doc-changed.pyを作成します。  
    Ex. `C:\Users\[UserName]\HookEventExtentionSample\HookEventExtentionSample.extension\hooks\doc-changed.py`  
-   * とりあえず、ご挨拶をしましょう。
+   * とりあえず、ご挨拶をしましょう。(#-*- coding: utf-8 -*-を忘れずに）
 ```
 #-*- coding: utf-8 -*-
 
