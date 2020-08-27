@@ -64,7 +64,24 @@ print('hello')
 ```
 
 * 各トランザクション名称を表示してみましょう。
-   * 追加されたエレメントの名称をダイアログで表示する処理を記述します。  
+```
+#-*- coding: utf-8 -*-
+from pyrevit import forms
+from pyrevit import EXEC_PARAMS
+from pyrevit import DB
+
+command = EXEC_PARAMS.event_args
+doc = command.GetDocument()
+
+
+#Transaction名称
+transactions = EXEC_PARAMS.event_args.GetTransactionNames()
+
+for n in transactions:
+   print(n)
+```
+
+* 追加されたエレメントの名称をダイアログで表示する処理を記述します。
 ```
 #-*- coding: utf-8 -*-
 from pyrevit import forms
