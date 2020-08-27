@@ -56,6 +56,14 @@ pyRevitでイベントをHookして、
    * [DocumentChangedEventArgs](https://www.revitapidocs.com/2015/470504f7-c7cb-b259-6fd4-feb376e58d17.htm)
    * doc-changed.pyを作成します。  
    Ex. `C:\Users\[UserName]\HookEventExtentionSample\HookEventExtentionSample.extension\hooks\doc-changed.py`  
+   * とりあえず、ご挨拶をしましょう。
+```
+#-*- coding: utf-8 -*-
+
+print('hello')
+```
+
+* 各トランザクション名称を表示してみましょう。
    * 追加されたエレメントの名称をダイアログで表示する処理を記述します。  
 ```
 #-*- coding: utf-8 -*-
