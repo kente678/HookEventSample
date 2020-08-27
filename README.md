@@ -46,7 +46,7 @@ pyRevitでイベントをHookして、
 * HookEventSample.extensionに、hooksフォルダを追加します。  
    Ex. `C:\Users\[UserName]\HookEventSample\HookEventSample.extension\hooks`  
 ### 2.3 command.pyスクリプトを追加  
-* hooksフォルダに、[command].pyを追加します。
+* hooksフォルダに、[command].pyを追加します。  
    Ex. `C:\Users\[UserName]\HookEventSample\HookEventSample.extension\hooks\[command].py`  
 
 * commandには、準備されているコマンドの名称を記述することで、対象のコマンドをHookできます。
