@@ -51,17 +51,40 @@ pyRevitでイベントをHookして、
 
 * commandには、準備されているコマンドの名称を記述することで、対象のコマンドをHookできます。
    * [Hook Script Types](https://www.notion.so/Extension-Hooks-b771ecf65f6a45fe87ae12beab2a73a6)
+   * [pyRevitのGithttps://github.com/eirannejad/pyRevit/blob/master/extensions/pyRevitDevHooks.extension/hooks/view-activated.py)
 
-* 試しに、doc-changed.pyを作成して、変更コマンドをHookしてみましょう。
-   * [DocumentChangedEventArgs](https://www.revitapidocs.com/2015/470504f7-c7cb-b259-6fd4-feb376e58d17.htm)
-   * doc-changed.pyを作成します。  
-   Ex. `C:\Users\[UserName]\HookEventExtentionSample\HookEventExtentionSample.extension\hooks\doc-changed.py`  
+* 試しに、view-activated.pyを作成して、view-activatedコマンドをHookしてみましょう。
+* [ViewActivatedEventArgs](https://www.revitapidocs.com/2015/24c9982d-8f77-7ec0-c78b-7aafed99bc51.htm)
+   * view-activated.pyを作成します。  
+   Ex. `C:\Users\[UserName]\HookEventExtentionSample\HookEventExtentionSample.extension\hooks\view-activated.py`  
    * とりあえず、ご挨拶をしましょう。(#-*- coding: utf-8 -*-を忘れずに）
 ```
 #-*- coding: utf-8 -*-
 
 print('hello')
 ```
+
+* 開いたビューの名称を表示しましょう。
+```
+#-*- coding: utf-8 -*-
+from pyrevit import forms
+from pyrevit import EXEC_PARAMS
+
+#イベントハンドラー
+command = EXEC_PARAMS.event_args
+
+#現在のビュー
+current_view = command.CurrentActiveView.Name
+#現在のビューを表示
+forms.alert(current_view)
+
+```
+
+* 次に、doc-changed.pyを作成して、変更コマンドをHookしてみましょう。
+   * [DocumentChangedEventArgs](https://www.revitapidocs.com/2015/470504f7-c7cb-b259-6fd4-feb376e58d17.htm)
+   * doc-changed.pyを作成します。  
+   Ex. `C:\Users\[UserName]\HookEventExtentionSample\HookEventExtentionSample.extension\hooks\doc-changed.py`  
+
 
 * 各トランザクション名称を表示してみましょう。
 ```
@@ -94,6 +117,7 @@ doc = command.GetDocument()
 
 #追加されたエレメントのId
 addedIds = EXEC_PARAMS.event_args.GetAddedElementIds()
+#変更されたエレメントのId
 changedIds = EXEC_PARAMS.event_args.GetModifiedElementIds()
 
 
@@ -132,9 +156,11 @@ elif changedIds:
 
 t.Commit()
 ```
+
 * 残念ながら、pyrevitHookExtensionでは、トランザクション処理は実行できません。
     * [EventHandlerは読み取り専用](https://thebuildingcoder.typepad.com/blog/2010/04/element-level-events.html)
 * pyrevitHookExtensionはとても作り方が簡単なのですが、使い道がとても限られるようです。（良い使い道があったら、教えてください！）
+
 
 ## 3. IUpdaterクラスを用いたフック
 * C#と同様に、IUpdaterクラスを用いれば、Pyrevitでもイベントをフックしつつ、トランザクション処理へ繋げることができます。
@@ -151,6 +177,7 @@ t.Commit()
 
 ### 3.1 startup.pyスクリプトを追加
 * IUpdaterクラスを作成しましょう。
+   * 2で作成した、doc-changed.py、view-activated.pyをコメントアウトしましょう。
    * 2.1で作成したHookEventSample.extensionフォルダに、startup.pyファイルを作成しましょう。  
       Ex. `C:\Users\[UserName]\HookEventSample\HookEventSample.extension\startup.py`  
    * IUpdaterクラスを作成します。
@@ -202,7 +229,7 @@ class sampleUpdater(DB.IUpdater):
         #追加エレメント
         self.addedId = []
         #トランザクション名称取得
-        self.transactionName = None
+        self.transactionNames = []
 
 ```
 
@@ -211,7 +238,7 @@ class sampleUpdater(DB.IUpdater):
     #変更時トランザクション通知
     def docchanged_eventhandler(self, sender, args):
         #トランザクション名称取得
-        self.transactionName = args.GetTransactionNames()[0]  
+        self.transactionNames = args.GetTransactionNames()
 ```
 
 * startup.py内で、IUpdaterクラスを生成します。
@@ -239,6 +266,8 @@ DB.UpdaterRegistry.AddTrigger(updater.GetUpdaterId(), elements_filter, additiona
 ```
 
 * DocumentChangedハンドラーをセットします。（確認用）
+   * [IUpdaterDataクラスでは、トランザクション名称を取得できません](https://www.revitapidocs.com/2020/cf0dfaf5-fa07-7f4b-e3ac-b1cff8a557e0.htm)
+   
 ```
 #DocumentChangedハンドラー取得
 HOST_APP.app.DocumentChanged += \
@@ -252,8 +281,11 @@ HOST_APP.app.DocumentChanged += \
 ```
     #フック処理
     def Execute(self, data):
-        print(self.transactionName)
+        for n in self.transactionNames:
+            forms.alert(n)
 ```
+
+* pyRevitタブで、Reloadをしましょう。（startup.pyは、リロードしないと変更が反映されません。)
 
 * 追加、変更されたエレメントに、コメントを記入する処理を追加します。  
   引き続き、Execute関数内に記述します。（先ほどのprintは削除しましょう）
@@ -283,7 +315,7 @@ HOST_APP.app.DocumentChanged += \
 
         #変更エレメント用処理
         for id in changedIds:
-            #追加エレメントの時は、break
+            #追加エレメントの時は、break(追加されたものへコメント記入した時点で、「変更」になってしまうため)
             if id in self.addedId:
                 break
             elemChanged = doc.GetElement(id)
@@ -327,7 +359,7 @@ def SetElementColor(R, G, B, A):
         #追加エレメント
         self.addedId = []
         #トランザクション名称取得
-        self.transactionName = None
+        self.transactionName = []
         #追加対象用カラーセット
         self.addedColor = SetElementColor(255, 0, 0, 20)
         #変更対象用カラーセット
@@ -404,7 +436,18 @@ def SetElementColor(R, G, B, A):
 * HideUnchanged.pushbuttonフォルダに、icon.pngファイルを追加します。  
   Ex. `C:\Users\[UserName]\HookEventSample\HookEventSample.extension\HookSample.tab\Hook.panel\HideUnchanged.pushbutton\icon.png`
 
-### 4.7 非変更エレメントをFiltering
+
+### 4.7 ボタンの動作確認
+* まずはご挨拶をしましょう。
+```
+#-*- coding: utf-8 -*-
+
+
+print('hello')
+```
+
+
+### 4.8 非変更エレメントをFiltering
 * 追加、変更コメントのついていない全てのエレメントをフィルタリングします。  
    * 下記サイトに「フィルタの反転を指定するブール値引数を持ったオーバーロード コンストラクタを使用して反転させることができます」 
      とあったので、それを利用します。  
@@ -443,7 +486,7 @@ collectorIds = DB.FilteredElementCollector(doc)\
 .ToElementIds()
 ```
 
-### 4.7 対象エレメントの表示非表示
+### 4.9 対象エレメントの表示非表示
 * トランザクションを開始して、対象のエレメントを表示非表示する処理を追加します。
    * [HideElementTemporary Method](https://www.revitapidocs.com/2015/df9e6656-eca7-b95c-0e50-05974d5a70fb.htm)
    * [DisableTemporaryViewMode Method](https://www.revitapidocs.com/2015/e87fc993-5dc8-bb39-b7a7-fe91d075489a.htm)
@@ -463,7 +506,7 @@ else:
 t.Commit()
 ```
   
-### 4.8 対象エレメントの輪郭線表示
+### 4.10 対象エレメントの輪郭線表示
 * 非変更対象を非表示ではなく、輪郭線表示にします。
 * script.pyに、SetElementTransparency関数を追加します。輪郭線以外を透明度０に設定します。
 ```
@@ -516,15 +559,6 @@ t.Start()
 for id in collectorIds:
     doc.ActiveView.SetElementOverrides(id, hideColor)
 
-"""
-#非表示状態だったら、解除
-if not doc.ActiveView.IsElementVisibleInTemporaryViewMode(DB.TemporaryViewMode.TemporaryHideIsolate,collectorIds[0]):
-        doc.ActiveView.DisableTemporaryViewMode(DB.TemporaryViewMode.TemporaryHideIsolate)
-#非変更エレメントを一時非表示（Hideはグループ等に適応できなかったため。。）
-else:
-    for id in collectorIds:
-        doc.ActiveView.HideElementTemporary(id)
-"""
 
 t.Commit()
 ```
