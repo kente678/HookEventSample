@@ -138,22 +138,33 @@ elif changedIds:
 * せっかくフックできたので、追加、変更したものにコメントを追加してみましょう。
 
 ```
-#変更対象にコメント記入
-
 #トランザクション開始
 t = DB.Transaction(doc, "Add Comment")
 t.Start()
-if addedIds:
-    #配列が返るので、０番目のIdからエレメントを取得
-    targetElement = doc.GetElement(addedIds[0])
-    forms.alert(targetElement.Name)
-elif changedIds:
-    for i in changedIds:
-        targetElement = doc.GetElement(i)
-        #色々なIdsが返るので、カテゴリーを持つもののみ取得
-        if not targetElement.Category == None:
-            forms.alert(targetElement.Name)
+for id in addedIds:
+    #エレメント取得
+    elemAdded = doc.GetElement(id)
+    #コメントパラメータ
+    commentParamAdded = elemAdded.Parameter[DB.BuiltInParameter.ALL_MODEL_INSTANCE_COMMENTS]
+    if commentParamAdded:
+        #コメント記入
+        commentParamAdded.Set('追加')
+        #addedIdにId追加
 
+#変更エレメント用処理
+for id in changedIds:
+    #追加エレメントの時は、break
+     if id in self.addedId:
+         break
+    elemChanged = doc.GetElement(id)
+    commentParamChanged = elemChanged.Parameter[DB.BuiltInParameter.ALL_MODEL_INSTANCE_COMMENTS]
+    if commentParamChanged:
+        #コメント記入
+        commentParamChanged.Set('変更')
+        #対象エレメントの色変更
+        doc.ActiveView.SetElementOverrides(id, self.changedColor)
+                
+ 
 t.Commit()
 ```
 
