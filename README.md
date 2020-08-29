@@ -51,7 +51,7 @@ pyRevitでイベントをHookして、
 
 * commandには、準備されているコマンドの名称を記述することで、対象のコマンドをHookできます。
    * [Hook Script Types](https://www.notion.so/Extension-Hooks-b771ecf65f6a45fe87ae12beab2a73a6)
-   * [pyRevitのGithttps://github.com/eirannejad/pyRevit/blob/master/extensions/pyRevitDevHooks.extension/hooks/view-activated.py)
+   * [pyRevitのGit](https://github.com/eirannejad/pyRevit/blob/master/extensions/pyRevitDevHooks.extension/hooks/view-activated.py)
 
 * 試しに、view-activated.pyを作成して、view-activatedコマンドをHookしてみましょう。
 * [ViewActivatedEventArgs](https://www.revitapidocs.com/2015/24c9982d-8f77-7ec0-c78b-7aafed99bc51.htm)
