@@ -199,8 +199,7 @@ t.Commit()
 from pyrevit import HOST_APP, DB, framework
 from System import Guid
 from Autodesk.Revit.UI import TaskDialog
-import sys
-import os
+from pyrevit import forms
 
 #アップデータークラス
 class sampleUpdater(DB.IUpdater):
