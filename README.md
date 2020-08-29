@@ -284,8 +284,9 @@ HOST_APP.app.DocumentChanged += \
         for n in self.transactionNames:
             forms.alert(n)
 ```
-
 * pyRevitタブで、Reloadをしましょう。（startup.pyは、リロードしないと変更が反映されません。)
+   * 壁を追加して、トランザクション名称を確認してみましょう。
+
 
 * 追加、変更されたエレメントに、コメントを記入する処理を追加します。  
   引き続き、Execute関数内に記述します。（先ほどのprintは削除しましょう）
@@ -328,6 +329,7 @@ HOST_APP.app.DocumentChanged += \
                 if commentParamChanged:
                     commentParamChanged.Set("{}: {}".format(err.__class__.__name__, err))
 ```
+* ビュー上で、追加したり、移動、変更をして、コメント欄を確認してみましょう。
 
 ### 3.3 追加、変更エレメントの色変更
 * カラーのオーバーライドセッティングをセットする関数を追加します。  
